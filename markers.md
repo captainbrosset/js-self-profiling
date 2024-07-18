@@ -245,11 +245,14 @@ Trace with markers:
 ```
 ## Privacy and Security
 
-Careful consideration must be taken to avoid leaking top level UA work performed on a cross-origin document. UAs must only expose a marker if the responsible document for the work is same-origin with the profiler.
+Careful consideration must be taken to avoid leaking top level UA work performed on a cross-origin document. There is a risk to introduce a new source of side channel information through this API. Specifically, the timings of cross-origin opaque resources owned by the document that do not pass a Timing-Allow-Origin check or the timings of cross-origin documents hosted by the same process.
 
-There is a risk to introduce a new source of side channel information through this API. Specifically, the timings of cross-origin opaque resources owned by the document that do not pass a Timing-Allow-Origin check or the timings of cross-origin documents hosted by the same process. To mitigate this risk, a Sample's marker attribute may only be accessible when the current Realm's settings objects's cross-origin isolated capability boolean is set to true.
+To mitigate this risk, a sample's marker attribute may only be accessible when the current Realm's settings objects's cross-origin isolated capability boolean is set to true, for markers of type `gc`, `script`, `other`, or `paint`. For these markers, UAs must only expose a marker if the responsible document for the work is same-origin with the profiler.
+
+Markers of type `layout` and `style` are not subject to this restriction. The information they expose can already be observed today, for example by using `requestAnimationFrame` and `ResizeObserver` and measuring the delay between them.
 
 Additional checks may also be required by user agents to implement this feature.
+
 ## Considered alternatives
 
 Instead of setting a marker at the sample level, it is possible to attach the marker to a stack element instead.
